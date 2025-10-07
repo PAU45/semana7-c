@@ -1,43 +1,206 @@
 ﻿<Window x:Class="Lab07A2025.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Lab07A2025"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="700">
-    <Grid Background="#FAFAFA" Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="3*"/>
-        </Grid.RowDefinitions>
-        <StackPanel>
-        <!-- Encabezado -->
-        <TextBlock Text="Listado de Clientes"
-                   FontSize="20"
-                   FontWeight="Bold"
-                   Margin="10"
-                   Foreground="#333"/>
-            <Button Content="Listar" Height="40" Click="Button_Click"></Button>
-        </StackPanel>
-        <!-- DataGrid -->
-        <DataGrid x:Name="dgCustomers"
-                  Grid.Row="1"
-                  Margin="10"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  IsReadOnly="True"
-                  AlternatingRowBackground="#F2F2F2"
-                  GridLinesVisibility="All"
-                  HeadersVisibility="Column"
-                  SelectionMode="Single">
+        Title="Gestión de Productos" Height="560" Width="1000" MinWidth="900" MinHeight="520"
+        WindowStartupLocation="CenterScreen" Background="#F3F4F6">
+    <Window.Resources>
+        <!-- Paleta de colores -->
+        <Color x:Key="PrimaryColor">#2563EB</Color>
+        <Color x:Key="PrimaryDarkColor">#1D4ED8</Color>
+        <Color x:Key="AccentColor">#10B981</Color>
+        <Color x:Key="DangerColor">#DC2626</Color>
+        <Color x:Key="WarnColor">#F59E0B</Color>
+        <Color x:Key="WarnDarkColor">#D97706</Color>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDarkColor}"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
+        <SolidColorBrush x:Key="WarnBrush" Color="{StaticResource WarnColor}"/>
+        <SolidColorBrush x:Key="WarnDarkBrush" Color="{StaticResource WarnDarkColor}"/>
+        <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="BorderBrushLight" Color="#E5E7EB"/>
+        <Color x:Key="HeaderGradientStart">#1E3A8A</Color>
+        <Color x:Key="HeaderGradientEnd">#2563EB</Color>
 
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding CustomerID}" Width="Auto"/>
-                <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="Dirección" Binding="{Binding Address}" Width="2*"/>
-                <DataGridTextColumn Header="Teléfono" Binding="{Binding Phone}" Width="Auto"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <!-- Estilo base de botón (sin TemplateBinding problemático) -->
+        <Style x:Key="BaseButton" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryDarkBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" CornerRadius="6" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Background" Value="#9CA3AF"/>
+                                <Setter Property="Foreground" Value="#ECECEC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Variantes -->
+        <Style x:Key="AccentButton" BasedOn="{StaticResource BaseButton}" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="#059669"/>
+        </Style>
+        <Style x:Key="DangerButton" BasedOn="{StaticResource BaseButton}" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+            <Setter Property="BorderBrush" Value="#B91C1C"/>
+        </Style>
+        <Style x:Key="NeutralButton" BasedOn="{StaticResource BaseButton}" TargetType="Button">
+            <Setter Property="Background" Value="#6B7280"/>
+            <Setter Property="BorderBrush" Value="#4B5563"/>
+        </Style>
+        <Style x:Key="WarnButton" BasedOn="{StaticResource BaseButton}" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource WarnBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource WarnDarkBrush}"/>
+        </Style>
+
+        <!-- TextBox -->
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="0,2,0,10"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="bd" CornerRadius="4" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- DataGrid estilos -->
+        <Style TargetType="DataGrid" x:Key="ModernDataGrid">
+            <Setter Property="RowHeight" Value="36"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F1F5F9"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#1E40AF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderBrush" Value="#1E3A8A"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+        <Style TargetType="DataGridRow">
+            <EventSetter Event="MouseEnter" Handler="DataGridRow_MouseEnter"/>
+            <EventSetter Event="MouseLeave" Handler="DataGridRow_MouseLeave"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="140"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" CornerRadius="12" Margin="0,0,0,14" Padding="20">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{StaticResource HeaderGradientStart}" Offset="0"/>
+                    <GradientStop Color="{StaticResource HeaderGradientEnd}" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel>
+                <TextBlock Text="Gestión de Productos" FontSize="30" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="CRUD" FontSize="14" Foreground="#E0E7FF" Margin="2,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Formulario -->
+        <Border Grid.Row="1" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrushLight}" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Nombre" FontWeight="SemiBold"/>
+                    <TextBox x:Name="txtName"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Precio" FontWeight="SemiBold"/>
+                    <TextBox x:Name="txtPrice"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Stock" FontWeight="SemiBold"/>
+                    <TextBox x:Name="txtStock"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3">
+                    <TextBlock Text="ID" FontWeight="SemiBold"/>
+                    <TextBox x:Name="txtId" IsReadOnly="True" Background="#E5E7EB"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderBrushLight}" BorderThickness="1" CornerRadius="10" Padding="6">
+            <DataGrid x:Name="dgProducts" Style="{StaticResource ModernDataGrid}" SelectionMode="Single" SelectionChanged="dgProducts_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding ProductID}" Width="70"/>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="200"/>
+                    <DataGridTextColumn Header="Precio" Binding="{Binding Price}" Width="100"/>
+                    <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="100"/>
+                    <DataGridCheckBoxColumn Header="Activo" Binding="{Binding Active}" Width="70"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Botones -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
+            <Button Content="Nuevo" Click="BtnNuevo_Click" Style="{StaticResource NeutralButton}"/>
+            <Button Content="Insertar" Click="BtnInsert_Click" Style="{StaticResource AccentButton}"/>
+            <Button Content="Actualizar" Click="BtnUpdate_Click" Style="{StaticResource WarnButton}"/>
+            <Button Content="Eliminar" Click="BtnDelete_Click" Style="{StaticResource DangerButton}"/>
+            <Button Content="Refrescar" Click="BtnRefresh_Click" Style="{StaticResource NeutralButton}"/>
+        </StackPanel>
     </Grid>
 </Window>
